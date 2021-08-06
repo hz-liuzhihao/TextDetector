@@ -13,53 +13,21 @@ export default class TextDecorator {
     TextDecorator.keywordMap = null;
     if (url instanceof Array) {
       TextDecorator.onload(url);
+      return Promise.resolve();
     } else {
       const script = document.createElement('script');
       script.src = url;
+      let tempResolve;
+      const promise = new Promise((resolve) => {
+        tempResolve = resolve;
+      });
       script.onload = function () {
         const texts = JSON.parse(window.lzhtextdecorator);
         TextDecorator.onload(texts);
+        tempResolve();
       }
+      return promise;
     }
-  }
-
-  /**
-   * 装载词汇树
-   * @param texts 
-   */
-  static onload(texts: string[]) {
-    if (TextDecorator.keywordMap != null) {
-      return;
-    }
-    // 遍历词汇文本
-    texts.forEach(text => {
-      if (text) {
-        const strs = text.split('');
-        // 标记当前元素的文本map
-        if (!TextDecorator.keywordMap) {
-          TextDecorator.keywordMap = {};
-        }
-        let parentMap = TextDecorator.keywordMap;
-        // 对每个文本进行拆分
-        strs.forEach((item) => {
-          // 当父文本为空时,说明上次是在这里结束的,所以要标记文本可能在这里就已经是检测词汇了
-          if (!parentMap) {
-            parentMap = {
-              isEnd: true
-            };
-          }
-          if (parentMap[item]) {
-            parentMap = parentMap[item];
-          } else {
-            parentMap[item] = null;
-          }
-        });
-        // 当遍历完词汇后,如果父文本不为空说明下面还有检测词汇,当前词汇应该标记为可结束文本
-        if (!parentMap) {
-          parentMap.isEnd = true;
-        }
-      }
-    });
   }
 
   /**
@@ -67,16 +35,16 @@ export default class TextDecorator {
    * @param text 文本
    * @param isGlobal 是否进行全局检测,如果是false则检测到一处就返回,否则返回检测列表的索引位置
    */
-  static detector(text: string, isGlobal: boolean = false) {
+  public static detector(text: string, isGlobal: boolean = false) {
     if (!text || !TextDecorator.keywordMap) {
-      return null;
+      return [];
     }
     const texts = text.split('');
     const keywordMap = TextDecorator.keywordMap;
     let parentMap = keywordMap;
     // 初始开始位置
     let startIndex = 0;
-    let results: DecoratorResult[] = [];
+    const results: DecoratorResult[] = [];
     for (let i = 0; i < texts.length; i++) {
       const item = texts[i];
       // 当检测到相关词时需要让keywordMap移动到下一个词汇列表继续检测
@@ -88,10 +56,10 @@ export default class TextDecorator {
             end: i + 1
           });
           if (!isGlobal) {
-            return {
+            return [{
               start: startIndex,
               end: i + 1
-            };
+            }];
           }
           parentMap = TextDecorator.keywordMap;
           startIndex = i + 1;
@@ -108,5 +76,42 @@ export default class TextDecorator {
       }
     }
     return results;
+  }
+
+  /**
+   * 装载词汇树
+   * @param texts 
+   */
+  private static onload(texts: string[]) {
+    if (TextDecorator.keywordMap != null) {
+      return;
+    }
+    // 遍历词汇文本
+    texts.forEach(text => {
+      if (text) {
+        const strs = text.split('');
+        // 标记当前元素的文本map
+        if (!TextDecorator.keywordMap) {
+          TextDecorator.keywordMap = {};
+        }
+        let parentMap = TextDecorator.keywordMap;
+        // 对每个文本进行拆分
+        strs.forEach((item, index) => {
+          if (parentMap[item]) {
+            parentMap = parentMap[item];
+          } else {
+            if (index < strs.length - 1) {
+              parentMap = parentMap[item] = {};
+            } else {
+              parentMap = parentMap[item] = null;
+            }
+          }
+        });
+        // 当遍历完词汇后,如果父文本不为空说明下面还有检测词汇,当前词汇应该标记为可结束文本
+        if (!parentMap) {
+          parentMap && (parentMap.isEnd = true);
+        }
+      }
+    });
   }
 }
