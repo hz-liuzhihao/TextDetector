@@ -98,6 +98,10 @@ export default class TextDecorator {
         // 对每个文本进行拆分
         strs.forEach((item, index) => {
           if (parentMap[item]) {
+            // 当遍历完词汇后,如果文本不为空说明下面还有检测词汇,当前词汇应该标记为可结束文本
+            if (strs.length - 1 == index && parentMap[item]) {
+              parentMap[item].isEnd = true;
+            }
             parentMap = parentMap[item];
           } else {
             if (index < strs.length - 1) {
@@ -107,10 +111,6 @@ export default class TextDecorator {
             }
           }
         });
-        // 当遍历完词汇后,如果父文本不为空说明下面还有检测词汇,当前词汇应该标记为可结束文本
-        if (!parentMap) {
-          parentMap && (parentMap.isEnd = true);
-        }
       }
     });
   }
