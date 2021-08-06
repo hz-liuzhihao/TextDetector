@@ -68,7 +68,7 @@ export default class TextDecorator {
    * @param isGlobal 是否进行全局检测,如果是false则检测到一处就返回,否则返回检测列表的索引位置
    */
   static detector(text: string, isGlobal: boolean = false) {
-    if (!text) {
+    if (!text || !TextDecorator.keywordMap) {
       return null;
     }
     const texts = text.split('');
