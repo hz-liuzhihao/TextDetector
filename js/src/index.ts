@@ -39,7 +39,7 @@ export default class TextDecorator {
     if (!text || !TextDecorator.keywordMap) {
       return [];
     }
-    const texts = text.split('');
+    const texts = text.replace(/\s+/gm, '').split('');
     const keywordMap = TextDecorator.keywordMap;
     let parentMap = keywordMap;
     // 初始开始位置
@@ -105,7 +105,12 @@ export default class TextDecorator {
             parentMap = parentMap[item];
           } else {
             if (index < strs.length - 1) {
-              parentMap = parentMap[item] = {};
+              // 如果父文本早就存在这个词汇根则需要标记为上次已结束的
+              if (parentMap[item] === null) {
+                parentMap = parentMap[item] = { isEnd: true };
+              } else {
+                parentMap = parentMap[item] = {};
+              }
             } else {
               parentMap = parentMap[item] = null;
             }
