@@ -26,6 +26,7 @@ export default class TextDecorator {
         TextDecorator.onload(texts);
         tempResolve();
       }
+      document.head.appendChild(script);
       return promise;
     }
   }
