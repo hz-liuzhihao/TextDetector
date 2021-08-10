@@ -5,7 +5,7 @@ import TextDecorator from '../../src/index';
 import 'antd/dist/antd.css';
 
 const Search = Input.Search;
-TextDecorator.init('../../../keyword.js');
+TextDecorator.init('https://hz-liuzhihao.github.io/wecanresource/detector_keyword.js');
 
 class App extends PureComponent {
 
