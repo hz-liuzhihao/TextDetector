@@ -5,7 +5,7 @@ import TextDecorator from '../../src/index';
 import 'antd/dist/antd.css';
 
 const Search = Input.Search;
-TextDecorator.init(['麻痹', '操你妈', '操尼玛', '操蛋', '王八', '狗日']);
+TextDecorator.init('../../../keyword.js');
 
 class App extends PureComponent {
 
