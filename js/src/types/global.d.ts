@@ -23,7 +23,7 @@ interface JSONObject {
 }
 
 interface Window {
-    lzhtextdecorator: string;
+    lzhtextdecorator: string | string[];
 }
 
 interface DecoratorResult {

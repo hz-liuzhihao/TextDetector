@@ -22,8 +22,11 @@ export default class TextDecorator {
         tempResolve = resolve;
       });
       script.onload = function () {
-        const texts = JSON.parse(window.lzhtextdecorator);
-        TextDecorator.onload(texts);
+        let texts = window.lzhtextdecorator;
+        if (typeof window.lzhtextdecorator == 'string') {
+          texts = JSON.parse(window.lzhtextdecorator);
+        }
+        TextDecorator.onload(texts as string[]);
         tempResolve();
       }
       document.head.appendChild(script);
